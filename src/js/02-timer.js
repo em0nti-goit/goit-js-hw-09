@@ -4,9 +4,10 @@ import { convertMs, addLeadingZero } from "./convert-ms.mjs";
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const TIMER_STEP = 1000;
-//restart timer after click on input
+let timerId = null;
 let timerStartDate = 0;
 
+const inputRef = document.querySelector("input#datetime-picker");
 const startButtonRef = document.querySelector("button[data-start]");
 const timerRefs = {
   days: document.querySelector('[data-days]'),
@@ -20,6 +21,16 @@ const flatpickrOptions = {
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
+  onOpen() {
+    if (timerId) {
+      clearInterval(timerId);
+      console.log("Timer stopped");
+      timerRefs.days.textContent = "00";
+      timerRefs.hours.textContent = "00";
+      timerRefs.minutes.textContent = "00";
+      timerRefs.seconds.textContent = "00";
+    }
+  },
   onClose(selectedDates) {
     const start = Date.now();
     const end = selectedDates[0].getTime();
@@ -33,15 +44,16 @@ const flatpickrOptions = {
 };
 
 // create flatpickr instance with options and attach it to the input field
-
-flatpickr("input#datetime-picker", flatpickrOptions);
+flatpickr(inputRef, flatpickrOptions);
 
 startButtonRef.addEventListener("click", () => {
   console.log("Timer started");
 
   let currentTimerValue = timerStartDate;
 
-  const timerId = setInterval(() => {
+  startButtonRef.setAttribute("disabled", "disabled");
+
+  timerId = setInterval(() => {
     currentTimerValue -= TIMER_STEP;
 
     console.log(convertMs(currentTimerValue));
