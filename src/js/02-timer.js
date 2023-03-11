@@ -1,6 +1,7 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import { convertMs, addLeadingZero } from "./convert-ms.mjs";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const TIMER_STEP = 1000;
 //restart timer after click on input
@@ -23,7 +24,7 @@ const flatpickrOptions = {
     const start = Date.now();
     const end = selectedDates[0].getTime();
     if (end < start) {
-      console.log("Please choose a date in the future");
+      Notify.warning("Please choose a date in the future");
     } else {
       startButtonRef.removeAttribute("disabled");
       timerStartDate = end - start;
@@ -50,9 +51,11 @@ startButtonRef.addEventListener("click", () => {
     timerRefs.minutes.textContent = addLeadingZero(convertMs(currentTimerValue).minutes);
     timerRefs.seconds.textContent = addLeadingZero(convertMs(currentTimerValue).seconds);
 
-    if (currentTimerValue <= 0) {
+    if (currentTimerValue < 1000) {
       clearInterval(timerId);
-      console.log("Timer finished");
+
+      Notify.info("Timer finished");
     }
+
   }, TIMER_STEP);
 });
