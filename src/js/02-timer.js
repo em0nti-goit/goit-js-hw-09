@@ -24,16 +24,12 @@ const flatpickrOptions = {
   onOpen() {
     if (timerId) {
       clearInterval(timerId);
-      console.log("Timer stopped");
-      timerRefs.days.textContent = "00";
-      timerRefs.hours.textContent = "00";
-      timerRefs.minutes.textContent = "00";
-      timerRefs.seconds.textContent = "00";
+      setupTimerValue(timerRefs);
     }
   },
-  onClose(selectedDates) {
+  onClose([selectedDates]) {
     const start = Date.now();
-    const end = selectedDates[0].getTime();
+    const end = selectedDates.getTime();
     if (end < start) {
       Notify.warning("Please choose a date in the future");
     } else {
@@ -47,8 +43,6 @@ const flatpickrOptions = {
 flatpickr(inputRef, flatpickrOptions);
 
 startButtonRef.addEventListener("click", () => {
-  console.log("Timer started");
-
   let currentTimerValue = timerStartDate;
 
   startButtonRef.setAttribute("disabled", "disabled");
@@ -56,18 +50,21 @@ startButtonRef.addEventListener("click", () => {
   timerId = setInterval(() => {
     currentTimerValue -= TIMER_STEP;
 
-    console.log(convertMs(currentTimerValue));
+    const { days, hours, minutes, seconds } = convertMs(currentTimerValue);
 
-    timerRefs.days.textContent = (convertMs(currentTimerValue).days < 10) ? addLeadingZero(convertMs(currentTimerValue).days) : convertMs(currentTimerValue).days;
-    timerRefs.hours.textContent = addLeadingZero(convertMs(currentTimerValue).hours);
-    timerRefs.minutes.textContent = addLeadingZero(convertMs(currentTimerValue).minutes);
-    timerRefs.seconds.textContent = addLeadingZero(convertMs(currentTimerValue).seconds);
+    setupTimerValue(timerRefs, days, hours, minutes, seconds);
 
     if (currentTimerValue < 1000) {
       clearInterval(timerId);
-
       Notify.info("Timer finished");
     }
-
   }, TIMER_STEP);
 });
+
+function setupTimerValue(refs, d = '00', h = '00', m = '00', s = '00', formatFn = addLeadingZero) {
+
+  refs.days.textContent = formatFn(d);
+  refs.hours.textContent = formatFn(h);
+  refs.minutes.textContent = formatFn(m);
+  refs.seconds.textContent = formatFn(s);
+}
