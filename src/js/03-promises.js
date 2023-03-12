@@ -14,22 +14,18 @@ function createPromise(position, delay) {
 }
 
 function notifySuccess({ position, delay }) {
-  console.log("notifySuccess");
   Notify.success(`Fulfilled promise ${position} in ${delay}ms`);
 }
 
 function notifyRejected({ position, delay }) {
-  console.log("notifyRejected");
   Notify.failure(`Rejected promise ${position} in ${delay}ms`);
 }
 
 const formRef = document.querySelector('.form');
-const submitRef = document.querySelector('button[type="submit"]');
 
+formRef.addEventListener('submit', formSubmitHandler);
 
-submitRef.addEventListener('click', onClickSubmitButton);
-
-function onClickSubmitButton(e) {
+function formSubmitHandler(e) {
   e.preventDefault();
 
   const delayValue = Number(formRef.delay.value);
@@ -37,10 +33,7 @@ function onClickSubmitButton(e) {
   const amountValue = Number(formRef.amount.value);
   let currentDelay = delayValue;
 
-  console.log(delayValue, stepValue, amountValue);
-
   for (let i = 1; i <= amountValue; i++) {
-    console.log(i, currentDelay);
     createPromise(i, currentDelay).then(notifySuccess).catch(notifyRejected);
     currentDelay += stepValue;
   }
